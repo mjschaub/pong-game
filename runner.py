@@ -7,5 +7,5 @@ if __name__ == "__main__":
     alpha_value = .4
     gamma_value = .95
     epsilon_value = .04
-    num_games = 1
+    num_games = 100000
     Simulator(num_games, alpha_value, gamma_value, epsilon_value)

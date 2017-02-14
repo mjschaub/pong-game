@@ -15,7 +15,7 @@ class Simulator:
         self.epsilon_value = epsilon_value       
         self.alpha_value = alpha_value       
         self.gamma_val = gamma_value
-        self.Q = zeros(3,10369)
+        self.Q = zeros(3,12,2,3,12,1)
         
 
     
@@ -24,19 +24,15 @@ class Simulator:
         Choose action based on an epsilon greedy approach
         :return action selected
         '''
-        action_selected = None
-        x = random()
+        action_selected = None #should be 0 for no move, 1 for up, or 2 for down
+        x = np.random()
         if x < self.epsilon_value:
+			action_selected = np.random.randint(low=0,high=2)
             #act randomly
         else:
+			#discretize step here?
             #be greedy using current Q
 
-        #update Q
-        #Q_new = Q_old + self.alpha_value*error
-        #error = R(s) + gamma * max Q(a',s') - Q(a,s)
-
-
-        # Your Code Goes Here!
         
         return action_selected
 
@@ -47,7 +43,7 @@ class Simulator:
         for i in range(num_games):
             MDP(0.5, 0.5, 0.03, 0.01, 0.5 - paddle_height / 2)
             play_game()
-            self.Q = zeros(3,10369)
+            self.Q = zeros(3,12,2,3,12,1)
 
         pass
     
@@ -55,6 +51,25 @@ class Simulator:
         '''
         Simulate an actual game till the agent loses.
         '''
-        simulate_one_time_step()
-        #discretize_step()
-        pass
+		initial_state = discretize_step
+		new_action = f_function()
+		simulate_one_time_step(new_action)
+		new_state = discretize_step()
+		didLose = False
+		while !didLose:
+
+			new_action = f_function()
+        	simulate_one_time_step(new_action)
+        	new_state = discretize_step()
+        	if new_state[4] == 1:
+				didLose = True
+			else: 
+			
+				#update Q
+        		#Q_new = Q_old + self.alpha_value*error
+        		#error = R(s) + gamma * max Q(a',s') - Q(a,s)
+
+
+
+
+	pass
