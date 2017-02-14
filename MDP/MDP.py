@@ -110,7 +110,10 @@ or the paddle's location. This is the only state with a reward of -1.
 		discretized_x = floor(self.ball_x * 12)
 		discretized_y = floor(self.ball_y * 12)
 		discrete_pos = discretized_x*discretized_y
-		discrete_x_velocity = self.velocity_x > 0 : 1 ? -1
+		if self.velocity_x > 0:
+			discrete_x_velocity = 1
+		else:
+			discrete_x_velocity = -1
 		if Math.abs(self.velocity_y) < .015:
 			discrete_y_velocity = 0
 		elif self.velocity_y < 0:
@@ -127,6 +130,6 @@ or the paddle's location. This is the only state with a reward of -1.
 			discrete_fail = 0
 		#reward the current state of Q if shouldReward is true?
 
-		return (discrete_pos, discrete_x_velocity, discrete_y_velocity, discrete_paddle, discrete_fail)
+		#return (discrete_pos, discrete_x_velocity, discrete_y_velocity, discrete_paddle, discrete_fail)
 
         pass

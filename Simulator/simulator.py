@@ -56,7 +56,7 @@ class Simulator:
 		simulate_one_time_step(new_action)
 		new_state = discretize_step()
 		didLose = False
-		while !didLose:
+		while didLose is False:
 
 			new_action = f_function()
         	simulate_one_time_step(new_action)
