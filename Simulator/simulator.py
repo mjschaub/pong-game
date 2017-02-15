@@ -27,11 +27,21 @@ class Simulator:
         action_selected = None #should be 0 for no move, 1 for up, or 2 for down
         x = np.random()
         if x < self.epsilon_value:
-			action_selected = np.random.randint(low=0,high=2)
-            #act randomly
+		action_selected = np.random.randint(low=0,high=2)	
         else:
-			#discretize step here?
-            #be greedy using current Q
+	    #discretize step here?
+		discrete = discretize_step()
+		curr_state = Q[:,discrete[0],discrete[1],discrete[2],discrete[3],discrete[4]]
+		max_val = -1
+        	for i in range(len(curr_state)):
+			if curr_state[i] > max_val:
+				max_val = curr_state[i]
+				action_selected = i
+	
+		
+
+		
+		
 
         
         return action_selected
@@ -51,23 +61,38 @@ class Simulator:
         '''
         Simulate an actual game till the agent loses.
         '''
-		initial_state = discretize_step
+		'''initial_state = discretize_step
 		new_action = f_function()
 		simulate_one_time_step(new_action)
 		new_state = discretize_step()
+		'''
 		didLose = False
 		while didLose is False:
-
-			new_action = f_function()
-        	simulate_one_time_step(new_action)
-        	new_state = discretize_step()
-        	if new_state[4] == 1:
+			prev_tuple = discretize_step()
+			prev_action = f_function()
+        		shouldReward = simulate_one_time_step(prev_action)
+        		new_tuple = discretize_step()
+			#new_action = f_function()
+        		if new_state[4] == 1:
 				didLose = True
-			else: 
 			
-				#update Q
-        		#Q_new = Q_old + self.alpha_value*error
-        		#error = R(s) + gamma * max Q(a',s') - Q(a,s)
+			max_state = Q[:,new_tuple[0],new_tuple[1],new_tuple[2],new_tuple[3],new_tuple[4]]
+			#update Q
+			max_val = -1
+			max_Q = 0
+        		for i in range(len(max_state)):
+				if max_state[i] > max_val:
+					max_val = max_state[i]
+					max_Q = i
+			
+			if shouldReward:
+				error = 1 + self.gamma_val * max_state[max_val] - Q[prev_action,prev_tuple[0],prev_tuple[1],prev_tuple[2],prev_tuple[3],prev_tuple[4]]
+        			Q_new = self.Q + self.alpha_value*error
+				self.Q = Q_new
+			else:
+				error = 0 + self.gamma_val * max_state[max_val] - Q[prev_action,prev_tuple[0],prev_tuple[1],prev_tuple[2],prev_tuple[3],prev_tuple[4]]
+        			Q_new = self.Q + self.alpha_value*error
+        			self.Q = Q_new
 
 
 
