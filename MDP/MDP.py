@@ -3,6 +3,7 @@ import Math
 class MDP:
     
     def __init__(self, 
+		 ball_count= None,
                  ball_x=None,
                  ball_y=None,
                  velocity_x=None,
@@ -12,6 +13,7 @@ class MDP:
         Setup MDP with the initial values provided.
         '''
         self.create_state(
+	    ball_count = ball_count,
             ball_x=ball_x,
             ball_y=ball_y,
             velocity_x=velocity_x,
@@ -24,6 +26,7 @@ class MDP:
         self.isInFailState = False
     
     def create_state(self,
+	      ball_count = None,	
               ball_x=None,
               ball_y=None,
               velocity_x=None,
@@ -68,6 +71,8 @@ class MDP:
           ball_x = -1 * ball_x
           velocity_x = -1 * velocity_x
         elif ball_x > 1 and ball_y-paddle_y < .2 :
+		ball_count+=1
+		print(ball_count)
         	#ball hit paddle, increment the reward by one
         	ball_x = 2 * paddle_x - ball_x
         	U = Math.random(-.015,.015)
