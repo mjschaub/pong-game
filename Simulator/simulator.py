@@ -38,6 +38,7 @@ class Simulator:
 			if curr_state[i] > max_val:
 				max_val = curr_state[i]
 				action_selected = i
+				
 	
 		
 
@@ -52,13 +53,15 @@ class Simulator:
         Train the agent over a certain number of games.
         '''
 	print("Training: ")
+	ball_count = 0
         for i in range(self.num_games):
-		#print("new game")
+		print("game: ",i)
         	mdpInstance = MDP(0.5, 0.5, 0.03, 0.01, 0.5 - .2/2)
         	self.play_game(mdpInstance)
-        	#self.Q = np.zeros((3,12,2,3,12,1))
-	print(self.Q)	
-
+        	ball_count += MDP.get_ball_count(mdpInstance)
+	#print(self.Q)
+	print("total hits: ",ball_count)	
+	print("average: ",float(ball_count)/float(self.num_games))
         pass
     
     def play_game(self, mdpInstance):
@@ -78,7 +81,6 @@ class Simulator:
         	new_tuple = MDP.discretize_state(mdpInstance)
 		
         	if new_tuple[4] == 1:
-			#print("missed ball")
 			didLose = True
 			break
 		
@@ -94,12 +96,12 @@ class Simulator:
 			
 		if shouldReward:
 			error = 1 + self.gamma_val * max_val - self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]]
-        		Q_new = self.Q + self.alpha_value*error
-			self.Q = Q_new
+        		Q_new = self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] + self.alpha_value*error
+			self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] = Q_new
 		else:
 			error = 0 + self.gamma_val * max_val - self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]]
-        		Q_new = self.Q + self.alpha_value*error
-        		self.Q = Q_new
+        		Q_new = self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] + self.alpha_value*error
+        		self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] = Q_new
 
 
 

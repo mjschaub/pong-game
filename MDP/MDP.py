@@ -25,6 +25,8 @@ class MDP:
         self.actions = [0, 0.04, -0.04]
         self.isInFailState = False
 	self.ball_count = 0
+	#self.avg_ball_count = 0
+	self.num_games = 1
     
     def create_state(self,	
               ball_x=None,
@@ -83,6 +85,7 @@ class MDP:
           self.velocity_x = -1 * self.velocity_x
         elif self.ball_x > 1 and (self.ball_y-self.paddle_y) <= .2 and (self.ball_y-self.paddle_y) >= 0 :
 		self.ball_count+=1
+		#self.avg_ball_count +=1
 		#print("ball_count: ",self.ball_count)
         	#ball hit paddle, increment the reward by one
 		#print("x: ",self.ball_x," y: ",self.ball_y,"  paddle_y: ",self.paddle_y)
@@ -101,9 +104,13 @@ class MDP:
 
 	elif self.ball_x > 1: 
 		#paddle missed ball and is in fail state
-		#print("ball_count: ",self.ball_count)
+		print("ball_count: ",self.ball_count)
+		self.num_games+=1
+		#if self.num_games == 9999:
+		#print("avg streak over all games: ",self.ball_count/10000)
 		self.isInFailState = True
-		self.ball_count = 0
+		#self.ball_count = 0
+
         return self.shouldReward
     
     def discretize_state(self):
@@ -129,7 +136,7 @@ or the paddle's location. This is the only state with a reward of -1.
  Therefore, the total size of the state space for this problem is (144)(2)(3)(12)+1 = 10369.
         '''
 	if self.ball_y < 0:
-		print("shouldnt get here")
+		#print("shouldnt get here")
         	self.ball_y = -1 * self.ball_y
 	
 	final_state = 0
@@ -160,4 +167,9 @@ or the paddle's location. This is the only state with a reward of -1.
 		discrete_fail = 1	
 
 	return (discrete_pos, discrete_x_velocity, discrete_y_velocity, discrete_paddle, discrete_fail)
+
+
+
+    def get_ball_count(self):
+	return self.ball_count
 
