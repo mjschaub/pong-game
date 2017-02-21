@@ -1,19 +1,19 @@
 import math
+import random
 
 class MDP:
     
-    def __init__(self, 
-		 ball_count= None,
+    def __init__(self,
                  ball_x=None,
                  ball_y=None,
                  velocity_x=None,
                  velocity_y=None,
-                 paddle_y=None):
+                 paddle_y=None
+		 ):
         '''
         Setup MDP with the initial values provided.
         '''
         self.create_state(
-	    ball_count = ball_count,
             ball_x=ball_x,
             ball_y=ball_y,
             velocity_x=velocity_x,
@@ -24,9 +24,9 @@ class MDP:
         # the agent can choose between 3 actions - stay, up or down respectively.
         self.actions = [0, 0.04, -0.04]
         self.isInFailState = False
+	self.ball_count = 0
     
-    def create_state(self,
-	      ball_count = None,	
+    def create_state(self,	
               ball_x=None,
               ball_y=None,
               velocity_x=None,
@@ -50,44 +50,60 @@ class MDP:
         '''
 
 	self.shouldReward = False
-	self.paddle_y+= actions[action_selected]
+	self.paddle_y+= self.actions[action_selected]
 		
 	if self.paddle_y < 0:
 		self.paddle_y = 0
 	elif self.paddle_y > 1-.2:
 		self.paddle_y = 1-.2
-
+	if self.velocity_x > 1:
+		print("velocity_x went over 1")
+		self.velocity_x = .9
+	elif self.velocity_x < -1: 
+		print("velocity_x went under 1")
+		self.velocity_y = -.9
+	if abs(self.velocity_y) > 1:
+		print("velocity_y went over 1")
+		self.velocity_y = .9
+	elif self.velocity_y < -1: 
+		print("velocity_y went under 1")
+		self.velocity_y = -.9
 
         self.ball_x += self.velocity_x
         self.ball_y += self.velocity_y
 
-        if ball_y < 0:
-          ball_y = -1 * ball_y
-          velocity_y = -1 * velocity_y
-        elif ball_y > 1:
-          ball_y = 2 - ball_y
-          velocity_y = -1 * velocity_y
-        if ball_x < 0:
-          ball_x = -1 * ball_x
-          velocity_x = -1 * velocity_x
-        elif ball_x > 1 and ball_y-self.paddle_y < .2 :
-		ball_count+=1
-		print(ball_count)
+        if self.ball_y < 0:
+          self.ball_y = -1 * self.ball_y
+          self.velocity_y = -1 * self.velocity_y
+        elif self.ball_y > 1:
+          self.ball_y = 2 - self.ball_y
+          self.velocity_y = -1 * self.velocity_y
+        if self.ball_x < 0:
+          self.ball_x = -1 * self.ball_x
+          self.velocity_x = -1 * self.velocity_x
+        elif self.ball_x > 1 and (self.ball_y-self.paddle_y) <= .2 and (self.ball_y-self.paddle_y) >= 0 :
+		self.ball_count+=1
+		#print("ball_count: ",self.ball_count)
         	#ball hit paddle, increment the reward by one
-        	ball_x = 2 * paddle_x - ball_x
-        	U = math.random(-.015,.015)
-        	V = math.random(-.03,.03)
-        	velocity_x = -velocity_x + U
-        	velocity_y = velocity_y + V
+		#print("x: ",self.ball_x," y: ",self.ball_y,"  paddle_y: ",self.paddle_y)
+        	self.ball_x = 2 - self.ball_x
+        	U = random.uniform(-.015,.015)
+        	V = random.uniform(-.03,.03)
+        	self.velocity_x = -1 * self.velocity_x + U
+        	self.velocity_y = self.velocity_y + V
 		self.shouldReward = True
-        	if abs(velocity_x) < .03:
-        		if velocity_x < 0:
-            			velocity_x = -.03
+        	if abs(self.velocity_x) < .03:
+        		if self.velocity_x < 0:
+            			self.velocity_x = -.03
           		else:
-              			velocity_x = .03
-	elif ball_x > 1: 
+              			self.velocity_x = .03
+		
+
+	elif self.ball_x > 1: 
 		#paddle missed ball and is in fail state
+		#print("ball_count: ",self.ball_count)
 		self.isInFailState = True
+		self.ball_count = 0
         return self.shouldReward
     
     def discretize_state(self):
@@ -112,11 +128,18 @@ long as ball_x > 1, the game will always be in this state, regardless of the bal
 or the paddle's location. This is the only state with a reward of -1.
  Therefore, the total size of the state space for this problem is (144)(2)(3)(12)+1 = 10369.
         '''
-
+	if self.ball_y < 0:
+		print("shouldnt get here")
+        	self.ball_y = -1 * self.ball_y
+	
 	final_state = 0
 	discretized_x = math.floor(self.ball_x * 12)
+	#print("ball_x: ",self.ball_x," ball_y: ",self.ball_y)
 	discretized_y = math.floor(self.ball_y * 12)
+	#print("discretized_y: ",discretized_y)
 	discrete_pos = discretized_x*discretized_y
+	#print("discretized_pos: ",discrete_pos)
+	
 	if self.velocity_x > 0:
 		discrete_x_velocity = 0
 	else:
@@ -131,10 +154,10 @@ or the paddle's location. This is the only state with a reward of -1.
 		discrete_paddle = 11
 	else:
 		discrete_paddle = math.floor(12 * self.paddle_y / (1 - .2))
-	if isInFailState:
-		discrete_fail = 1
+	if self.isInFailState is False:
+		discrete_fail = 0
 	else:
-		discrete_fail = 0	
+		discrete_fail = 1	
 
 	return (discrete_pos, discrete_x_velocity, discrete_y_velocity, discrete_paddle, discrete_fail)
 
