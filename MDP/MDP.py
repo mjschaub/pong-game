@@ -25,8 +25,8 @@ class MDP:
         self.actions = [0, 0.04, -0.04]
         self.isInFailState = False
 	self.ball_count = 0
-	#self.avg_ball_count = 0
 	self.num_games = 1
+	self.max_count = 0
     
     def create_state(self,	
               ball_x=None,
@@ -85,10 +85,7 @@ class MDP:
           self.velocity_x = -1 * self.velocity_x
         elif self.ball_x > 1 and (self.ball_y-self.paddle_y) <= .2 and (self.ball_y-self.paddle_y) >= 0 :
 		self.ball_count+=1
-		#self.avg_ball_count +=1
-		#print("ball_count: ",self.ball_count)
         	#ball hit paddle, increment the reward by one
-		#print("x: ",self.ball_x," y: ",self.ball_y,"  paddle_y: ",self.paddle_y)
         	self.ball_x = 2 - self.ball_x
         	U = random.uniform(-.015,.015)
         	V = random.uniform(-.03,.03)
@@ -104,12 +101,11 @@ class MDP:
 
 	elif self.ball_x > 1: 
 		#paddle missed ball and is in fail state
-		print("ball_count: ",self.ball_count)
+		if self.ball_count > 10:
+			print(self.ball_count)
 		self.num_games+=1
-		#if self.num_games == 9999:
-		#print("avg streak over all games: ",self.ball_count/10000)
 		self.isInFailState = True
-		#self.ball_count = 0
+		
 
         return self.shouldReward
     
@@ -136,16 +132,12 @@ or the paddle's location. This is the only state with a reward of -1.
  Therefore, the total size of the state space for this problem is (144)(2)(3)(12)+1 = 10369.
         '''
 	if self.ball_y < 0:
-		#print("shouldnt get here")
         	self.ball_y = -1 * self.ball_y
 	
 	final_state = 0
 	discretized_x = math.floor(self.ball_x * 12)
-	#print("ball_x: ",self.ball_x," ball_y: ",self.ball_y)
 	discretized_y = math.floor(self.ball_y * 12)
-	#print("discretized_y: ",discretized_y)
-	discrete_pos = discretized_x*discretized_y
-	#print("discretized_pos: ",discrete_pos)
+	discrete_pos = discretized_x*12+discretized_y
 	
 	if self.velocity_x > 0:
 		discrete_x_velocity = 0
@@ -157,10 +149,10 @@ or the paddle's location. This is the only state with a reward of -1.
 		discrete_y_velocity = 1
 	else:
 		discrete_y_velocity = 2
-	if self.paddle_y == 1-.2:
+	if self.paddle_y == .8:
 		discrete_paddle = 11
 	else:
-		discrete_paddle = math.floor(12 * self.paddle_y / (1 - .2))
+		discrete_paddle = math.floor(12 * self.paddle_y / (.8))
 	if self.isInFailState is False:
 		discrete_fail = 0
 	else:

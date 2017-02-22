@@ -17,6 +17,7 @@ class Simulator:
         self.alpha_value = alpha_value       
         self.gamma_val = gamma_value
         self.Q = np.zeros((3,144,2,3,12,1))
+	self.arr_states = []
         
 
     
@@ -30,7 +31,6 @@ class Simulator:
         if x < self.epsilon_value:
 		action_selected = np.random.randint(low=0,high=2)	
         else:
-		#discretize step here?
 		discrete = MDP.discretize_state(mdpInstance)
 		curr_state = self.Q[:,int(discrete[0]),discrete[1],discrete[2],int(discrete[3]),discrete[4]]
 		max_val = -1
@@ -52,15 +52,15 @@ class Simulator:
         '''
         Train the agent over a certain number of games.
         '''
-	print("Training: ")
+	
 	ball_count = 0
         for i in range(self.num_games):
-		print("game: ",i)
         	mdpInstance = MDP(0.5, 0.5, 0.03, 0.01, 0.5 - .2/2)
         	self.play_game(mdpInstance)
         	ball_count += MDP.get_ball_count(mdpInstance)
-	#print(self.Q)
-	print("total hits: ",ball_count)	
+		
+	
+		
 	print("average: ",float(ball_count)/float(self.num_games))
         pass
     
@@ -76,14 +76,17 @@ class Simulator:
 	didLose = False
 	while didLose is False:
 		prev_tuple = MDP.discretize_state(mdpInstance)
+		self.arr_states.append(prev_tuple)
 		prev_action = self.f_function(mdpInstance)
        		shouldReward = MDP.simulate_one_time_step(mdpInstance,prev_action)
         	new_tuple = MDP.discretize_state(mdpInstance)
-		
+
         	if new_tuple[4] == 1:
+			error = -1 + self.gamma_val * 0 - self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]]
+        		self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] += self.alpha_value*error
 			didLose = True
 			break
-		
+
 		max_state = self.Q[:,int(new_tuple[0]),new_tuple[1],new_tuple[2],int(new_tuple[3]),new_tuple[4]]
 		
 		#update Q
@@ -93,17 +96,25 @@ class Simulator:
 			if max_state[i] > max_val:
 				max_val = max_state[i]
 				max_Q = i
-			
+		
 		if shouldReward:
 			error = 1 + self.gamma_val * max_val - self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]]
-        		Q_new = self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] + self.alpha_value*error
-			self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] = Q_new
+        		self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] += self.alpha_value*error	
 		else:
 			error = 0 + self.gamma_val * max_val - self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]]
-        		Q_new = self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] + self.alpha_value*error
-        		self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] = Q_new
+        		self.Q[prev_action,int(prev_tuple[0]),prev_tuple[1],prev_tuple[2],int(prev_tuple[3]),prev_tuple[4]] += self.alpha_value*error
+        		
 
-
+	
 
 
 	pass
+
+
+
+    def change_parameters(self,epsilon,num_games):
+	self.epsilon_value = epsilon
+	self.num_games = num_games
+
+
+
