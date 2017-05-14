@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from MDP.MDP import MDP
+from graphics import *
 
 class Simulator:
     
@@ -39,26 +40,20 @@ class Simulator:
 				max_val = curr_state[i]
 				action_selected = i
 				
-	
-		
 
-		
-		
-
-        
         return action_selected
 
     def train_agent(self):
         '''
         Train the agent over a certain number of games.
         '''
-	
+	win = GraphWin('Pong game',500, 500)
 	ball_count = 0
         for i in range(self.num_games):
-        	mdpInstance = MDP(0.5, 0.5, 0.03, 0.01, 0.5 - .2/2)
+        	mdpInstance = MDP(0.5, 0.5, 0.03, 0.01, 0.5 - .2/2, win)
         	self.play_game(mdpInstance)
         	ball_count += MDP.get_ball_count(mdpInstance)
-		
+	win.close()	
 	
 		
 	print("average: ",float(ball_count)/float(self.num_games))
