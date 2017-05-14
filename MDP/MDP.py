@@ -109,25 +109,26 @@ class MDP:
 			print(self.ball_count)
 		self.num_games+=1
 		self.isInFailState = True
-		print('paddle missed ball')
-		self.ball.undraw()
-		self.paddle.undraw()
+		if self.win:
+			self.ball.undraw()
+			self.paddle.undraw()
+	if self.win:
+		if self.ball is None:
+			#self.ball.undraw()
+			self.ball = Circle(Point(self.ball_x*500,self.ball_y*500),5) # set center and radius
+	    		self.ball.setFill("blue")
+	    		self.ball.draw(self.win)
+		else:
+			self.ball.move(self.velocity_x*500,self.velocity_y*500)
 
-	if self.ball is None:
-		#self.ball.undraw()
-		self.ball = Circle(Point(self.ball_x*500,self.ball_y*500),5) # set center and radius
-    		self.ball.setFill("blue")
-    		self.ball.draw(self.win)
-	else:
-		self.ball.move(self.velocity_x*500,self.velocity_y*500)
+		old_paddle = Line(Point(497,self.paddle_y*500), Point(497,(self.paddle_y+.2)*500))
+		old_paddle.setWidth(3)
+		old_paddle.draw(self.win)
 
-	old_paddle = Line(Point(497,self.paddle_y*500), Point(497,(self.paddle_y+.2)*500))
-	old_paddle.setWidth(3)
-	old_paddle.draw(self.win)
-
-	if self.paddle:
-		self.paddle.undraw()
-	self.paddle = old_paddle
+		if self.paddle:
+			self.paddle.undraw()
+		self.paddle = old_paddle
+	#print(self.paddle_y)
 	'''
 	self.paddle = Line(Point(497,self.paddle_y*500), Point(497,(self.paddle_y+.2)*500)) # set endpoints
 	self.paddle.setWidth(3)

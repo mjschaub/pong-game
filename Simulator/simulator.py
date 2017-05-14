@@ -43,17 +43,22 @@ class Simulator:
 
         return action_selected
 
-    def train_agent(self):
+    def train_agent(self,should_show_gui):
         '''
         Train the agent over a certain number of games.
         '''
-	win = GraphWin('Pong game',500, 500)
+	if should_show_gui:
+		win = GraphWin('Pong game',500, 500)
 	ball_count = 0
         for i in range(self.num_games):
-        	mdpInstance = MDP(0.5, 0.5, 0.03, 0.01, 0.5 - .2/2, win)
+		if should_show_gui:
+        		mdpInstance = MDP(0.5, 0.5, 0.03, 0.01, 0.5 - .2/2, win)
+		else:
+			mdpInstance = MDP(0.5,0.5,0.03,0.01,0.5 - .2/2,None)
         	self.play_game(mdpInstance)
         	ball_count += MDP.get_ball_count(mdpInstance)
-	win.close()	
+	if should_show_gui:
+		win.close()	
 	
 		
 	print("average: ",float(ball_count)/float(self.num_games))
